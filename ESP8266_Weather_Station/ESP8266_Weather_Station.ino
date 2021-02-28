@@ -32,8 +32,8 @@ int8_t insideTemperature;
 LiquidCrystal_I2C lcd(I2C_ADDRESS, LCD_COLUMNS, LCD_ROWS);
 
 // WiFi Login Information
-const char* ssid = "MOTOROLA-FE69D";
-const char* password = "2b1e49c917";
+const char* ssid = "YOURWIFI";
+const char* password = "YOUPASSWORD";
 
 // Open Weather API URL and Key
 const String URL = "http://api.openweathermap.org/data/2.5/weather?lat=35.2497202&lon=-89.7660203&appid=12691a67a2a29e31a013778f0aac2778";
