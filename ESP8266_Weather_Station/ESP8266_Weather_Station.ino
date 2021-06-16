@@ -1,7 +1,7 @@
 /*
  Name:		ESP8266_Weather_Station.ino
  Created:	2/26/2021 1:31:59 PM
- Author:	Brandon Van Pelt
+ Author:	brand
 */
 
 #include <ArduinoJson.h>
@@ -25,8 +25,8 @@
 
 // Setup Temerature sensor
 DHT dht(DHTPIN, DHT11);
-uint8_t insideHumidity;
-float insideTemperature;
+int8_t insideHumidity;
+int8_t insideTemperature;
 
 // Setup I2C LCD
 LiquidCrystal_I2C lcd(I2C_ADDRESS, LCD_COLUMNS, LCD_ROWS);
@@ -35,9 +35,8 @@ LiquidCrystal_I2C lcd(I2C_ADDRESS, LCD_COLUMNS, LCD_ROWS);
 const char* ssid = "YOURWIFI";
 const char* password = "YOUPASSWORD";
 
-
 // Open Weather API URL and Key
-const String URL = "YOURKEY";
+const String URL = "Your API Key";
 
 // Set true by system ticker
 bool getWeather = false;
@@ -78,30 +77,15 @@ void updateLCD()
 {
     lcd.setCursor(0, 1);
     lcd.print("");
-    lcd.setCursor(9, 1);
-    lcd.print("   ");
-    lcd.setCursor(9, 1);
-    // - 0.8 offset because temp tends to run high
-    lcd.print((CEL_TO_FAHRENHEIT(insideTemperature) - 0.8));
-    lcd.setCursor(17, 1);
-    lcd.print("   ");
+    lcd.setCursor(11, 1);
+    lcd.print((int8_t)CEL_TO_FAHRENHEIT(insideTemperature));
     lcd.setCursor(17, 1);
     lcd.print(insideHumidity);
 
-    lcd.setCursor(9, 2);
-    lcd.print("   ");
-    lcd.setCursor(9, 2);
+    lcd.setCursor(11, 3);
     lcd.print(localWeather.temperature);
-    lcd.setCursor(17, 2);
-    lcd.print("   ");
-    lcd.setCursor(17, 2);
+    lcd.setCursor(17, 3);
     lcd.print(localWeather.humidity);
-
-    lcd.setCursor(9, 3);
-    lcd.print("   ");
-    lcd.setCursor(9, 3);
-    lcd.print(localWeather.realFeel);
-
 }
 
 // Requests local weather from Open Weather Map
@@ -119,7 +103,7 @@ void updateWeather()
         }
         else
         {
-            Serial.println(F("Error on HTTP request"));
+            Serial.println("Error on HTTP request");
         }
         http.end();
     }
@@ -130,11 +114,10 @@ void updateWeather()
         Serial.print(F("deserializeJson() failed: "));
         Serial.println(error.f_str());
     }
-    localWeather.temperature = KEL_TO_FAHRENHEIT((int16_t)doc["main"]["temp"]);
-    localWeather.tempHigh = KEL_TO_FAHRENHEIT((int16_t)doc["main"]["temp_max"]);
-    localWeather.tempLow = KEL_TO_FAHRENHEIT((int16_t)doc["main"]["temp_min"]);
+    localWeather.temperature = KEL_TO_FAHRENHEIT((int8_t)doc["main"]["temp"]);
+    localWeather.tempHigh = KEL_TO_FAHRENHEIT((int8_t)doc["main"]["temp_max"]);
+    localWeather.tempLow = KEL_TO_FAHRENHEIT((int8_t)doc["main"]["temp_min"]);
     localWeather.humidity = doc["main"]["humidity"];
-    localWeather.realFeel = KEL_TO_FAHRENHEIT((int16_t)doc["main"]["feels_like"]);
 
     getWeather = false;
 }
@@ -156,9 +139,9 @@ void setup() {
     while (WiFi.status() != WL_CONNECTED)
     {
         delay(1000);
-        Serial.println(F("Connecting to WiFi.."));
+        Serial.println("Connecting to WiFi..");
     }
-    Serial.println(F("Connected to the WiFi network"));
+    Serial.println("Connected to the WiFi network");
 
     // Attach system ticker 
     weatherTimer.attach(UPDATE_INTERVAL, timerCall);
@@ -169,11 +152,9 @@ void setup() {
     lcd.setCursor(2, 0);
     lcd.print("Weather Station");
     lcd.setCursor(0, 1);
-    lcd.print("Inside T:      H:");
-    lcd.setCursor(0, 2);
-    lcd.print("Local  T:      H:");
+    lcd.print(" Inside  T:    H:");
     lcd.setCursor(0, 3);
-    lcd.print("RealFeel:");
+    lcd.print(" Outside T:    H:");
     updateLCD();
 }
 
